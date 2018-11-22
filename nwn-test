@@ -1,10 +1,11 @@
 #!/usr/bin/ruby
-require 'optparse'
+
 require 'nwn/all'
-require 'tempfile'
+
 
 Dir.foreach('./') do |e|
-	if(Dir.exist?(e) and !(e =='.' || e == '..'))
+
+	if(Dir.exist?(e) and !(e[0,1] == '.'))
 		erf = NWN::Erf::Erf.new
 		erf.year = $year if $year
 		erf.day_of_year = $day_of_year if $day_of_year
