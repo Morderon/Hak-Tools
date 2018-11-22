@@ -4,7 +4,6 @@ require 'nwn/all'
 
 
 Dir.foreach('./') do |e|
-
 	if(Dir.exist?(e) and !(e[0,1] == '.'))
 		erf = NWN::Erf::Erf.new
 		erf.year = $year if $year
@@ -16,5 +15,6 @@ Dir.foreach('./') do |e|
 		end
         file = File.new(e+'.hak', "wb") 
 		erf.write_to(file)
+		file.close
 	end
 end
