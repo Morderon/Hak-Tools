@@ -21,3 +21,11 @@ Performs the same operation as the above ruby file, but uses the nim files found
 https://github.com/niv/neverwinter.nim
 
 After compiling them make sure they're in your PATH. Place the .bat file inside the same folder where the haks-to-be are located, then run it.
+
+
+nwn_desc.nim:
+
+With the aid of the above library, takes defined values from description.ini. Merges a present tlk file with the additional descriptions outputting them into a new .json which can be converted into a tlk with nwn_tlk.
+Finally, it updates the tlk references in the 2da.
+
+Requires: By default, the original 2das should be within Input 2das and the jsons which hold descriptions should be within Input json. The file name of the jsons should match the 2da. The default values can be changed within description.ini
