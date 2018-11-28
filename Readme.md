@@ -28,4 +28,14 @@ nwn_desc.nim:
 With the aid of the above library, takes defined values from description.ini. Merges a present tlk file with the additional descriptions outputting them into a new .json which can be converted into a tlk with nwn_tlk.
 Finally, it updates the tlk references in the 2da.
 
+Supported 2das: classes, spells, racialtypes, feat
+
 Requires: By default, the original 2das should be within Input 2das and the jsons which hold descriptions should be within Input json. The file name of the jsons should match the 2da. The default values can be changed within description.ini
+
+Input json fields:
+
+id - the row number of the 2da (required)
+text - the description 
+name - the name
+
+Other columns with a tlk reference can be used. They follow name format of 2da column name in lower case. (So NamePlural becomes nameplural)
