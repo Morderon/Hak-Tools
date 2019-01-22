@@ -50,6 +50,8 @@ for file in walkDir(dict.getSectionValue("General","InputDesc")):
  
     let appout = newFileStream(dict.getSectionValue("General","OutputTwo")&name&".2da", fmWrite)
     appout.writeTwoDA(state) 
+    app.close
+    appout.close
      
 let tlkout = newFileStream(dict.getSectionValue("General","OutTlk"), fmWrite) 
 tlkout.write $tlk
