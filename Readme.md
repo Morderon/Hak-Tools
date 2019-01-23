@@ -25,16 +25,16 @@ After compiling them make sure they're in your PATH. Place the .bat file inside 
 
 nwn_desc.nim:
 
-With the aid of the above library, takes defined values from description.ini. Merges a present tlk file with the additional descriptions outputting them into a new .json which can be converted into a tlk with nwn_tlk.
+With the aid of the above scripts, takes defined values from description.ini. Merges a present tlk file with the additional descriptions outputting them into a new .json which can be converted into a tlk with nwn_tlk.
 Finally, it updates the tlk references in the 2da.
 
 Supported 2das: classes, spells, racialtypes, feat
 
-Requires: By default, the original 2das should be within Input 2das and the jsons which hold descriptions should be within Input json. The file name of the jsons should match the 2da. The default values can be changed within description.ini
+Requirements: By default, the original 2das should be within Input 2das and the jsons which hold descriptions should be within Input json. The file name of the jsons should match the 2da. The default values can be changed within description.ini
 
 Input json fields:
 
-id - the row number of the 2da (required)
+id - the row number of the 2da (required), you can also specify multile row numbers like so: "3,8,10" will update 2da rows 3, 8 and 10.
 text - the description 
 name - the name
 
