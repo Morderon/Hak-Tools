@@ -38,4 +38,13 @@ id - the row number of the 2da (required), you can also specify multile row numb
 text - the description 
 name - the name
 
+Feat.json supports these additional fields:
+iprp_spells - value should be the id of a row in iprp_spells
+iprp_feats - as above, but with iprp_feats
+spells - as above
+
+Spells.json share iprp_spells.
+
+This will share feat/spells name field with the other twodas.
+
 Other columns with a tlk reference can be used. They follow name format of 2da column name in lower case. (So NamePlural becomes nameplural)

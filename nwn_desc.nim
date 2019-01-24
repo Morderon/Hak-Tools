@@ -2,10 +2,22 @@ import neverwinter/twoda, streams, options, json, parsecfg, re, os, strutils
 
 let start = 16777216
 var tlkstart = 0
+var ptrTD: ptr TwoDA
 var state: TwoDA
 let dict = loadConfig("description.ini")
 let tlk = parseFile(dict.getSectionValue("General","Tlk"))
-
+let spellsf = newFileStream(dict.getSectionValue("General","InputTwo")&"spells.2da")
+var spells: TwoDA
+if not isNil(spellsf):  
+  spells = spellsf.readTwoDA()
+let ip_spellf = newFileStream(dict.getSectionValue("General","InputTwo")&"iprp_spells.2da")
+var ip_spell: TwoDA
+if not isNil(ip_spellf):  
+  ip_spell = ip_spellf.readTwoDA()
+let ip_featf = newFileStream(dict.getSectionValue("General","InputTwo")&"iprp_feats.2da")
+var ip_feat: TwoDA
+if not isNil(ip_featf):  
+  ip_feat = ip_featf.readTwoDA()
 
 type
     ColPair = tuple[name: string, value: int]
@@ -20,57 +32,103 @@ proc addTlkRow(itm: JsonNode, field: string): int =
     
   tlkNum
 
+proc InsertRow(row: Row, otwoda: TwoDA, name: string, value: int): Row =
+  var row = row
+  row[otwoda.columns.find(name)] = some($(value+start))
+  row 
+
 proc addTlkNum(rowID: int, colNames: array[5, ColPair]) =
-    var row = state[rowID].get()
+    var row = ptrTD[][rowID].get()
     for x in 0..4:
       if colNames[x].name == "" : break
       if colNames[x].value > -1:
-        row[state.columns.find(colNames[x].name)] = some($(colNames[x].value+start))
-      
-    state[rowID] = row 
+        row = InsertRow(row, ptrTD[], colNames[x].name, colNames[x].value)
+  
+    ptrTD[][rowID] = row
 
 
+
+var colNames: array[2, array[5, ColPair]]
+
+colNames[1] = [("SpellDesc",0), ("Name",0), ("AltMessage",0), ("",0), ("",0)] 
 for file in walkDir(dict.getSectionValue("General","InputDesc")):
   var (dir, name, ext) = splitFile(file.path)
-  
+
   if ext == ".json" and (name == "classes" or name == "spells" or name == "racialtypes" or name == "feat"):
-    var colNames: array[5, ColPair]
     case name:
       of "classes":
-        colNames = [("Description",0),("Name",0),("Plural",0),("Lower",0),("",0)]  
+        colNames[0] = [("Description",0),("Name",0),("Plural",0),("Lower",0),("",0)]  
       of "spells":
-        colNames = [("SpellDesc",0), ("Name",0), ("AltMessage",0), ("",0), ("",0)]   
+        colNames[0] = colNames[1]   
       of "feat":
-        colNames = [("DESCRIPTION",0), ("FEAT",0), ("", 0), ("",0), ("",0)]
+        colNames[0] = [("DESCRIPTION",0), ("FEAT",0), ("", 0), ("",0), ("",0)]
       of "racialtypes":
-        colNames = [("Description",0), ("Name",0), ("ConverName",0), ("ConverNameLower",0), ("NamePlural",0)]
+        colNames[0] = [("Description",0), ("Name",0), ("ConverName",0), ("ConverNameLower",0), ("NamePlural",0)]
     
     let js = parseFile(file.path)
     tlkstart = parseInt(dict.getSectionValue("General","start"&name))
-    let app = newFileStream(dict.getSectionValue("General","InputTwo")&name&".2da")
-    state = app.readTwoDA()
+    var app: FileStream
+    if name != "spells":
+      app = newFileStream(dict.getSectionValue("General","InputTwo")&name&".2da")
+      state = app.readTwoDA()
+      ptrTD = addr state
+    else:
+      ptrTD = addr spells
+      
     for itm in items(js):
-      colNames[0].value = addTlkRow(itm, "text")
-      colNames[1].value = addTlkRow(itm, "name")
+      colNames[0][0].value = addTlkRow(itm, "text")
+      colNames[0][1].value = addTlkRow(itm, "name")
       for x in 2..4:
-        if colNames[x].name == "": break
-        colNames[x].value = addTlkRow(itm, colNames[x].name.toLower)
+        if colNames[0][x].name == "": break
+        colNames[0][x].value = addTlkRow(itm, colNames[0][x].name.toLower)
       
       let rowIDT = getStr(itm["id"])
       if rowIDT == "":
         let rowID = getInt(itm["id"])
-        addTlkNum(rowID, colNames)
+        addTlkNum(rowID, colNames[0])
       else:
         for s in split(rowIDT, ","):
-          addTlkNum(parseInt(s), colNames)  
- 
-    let appout = newFileStream(dict.getSectionValue("General","OutputTwo")&name&".2da", fmWrite)
-    appout.writeTwoDA(state)
-    app.close
-    appout.close
+          addTlkNum(parseInt(s), colNames[0])
+      
+      if name == "feat" or name == "spells":
+        if itm.hasKey("iprp_spells"):
+            let ispellID = getInt(itm["iprp_spells"]) 
+            var row = ip_spell[ispellID].get()
+            row = InsertRow(row, ip_spell, "Name", colNames[0][1].value)
+            ip_spell[ispellID] = row   
+      
+        if name == "feat":
+          if itm.hasKey("spells"):
+            let spellID = getInt(itm["spells"]) 
+            var row = spells[spellID].get()
+            row = InsertRow(row, spells, colNames[1][1].name, colNames[0][1].value)
+            spells[spellID] = row
+
+          if itm.hasKey("iprp_feats"):
+            let ifeatID = getInt(itm["iprp_feats"]) 
+            var row = ip_feat[ifeatID].get()
+            row = InsertRow(row, ip_feat, "Name", colNames[0][1].value)
+            ip_feat[ifeatID] = row          
+    
+    if name != "spells": #we close out spells at the end
+      let appout = newFileStream(dict.getSectionValue("General","OutputTwo")&name&".2da", fmWrite)
+      appout.writeTwoDA(state)
+      app.close
+      appout.close
      
 let tlkout = newFileStream(dict.getSectionValue("General","OutTlk"), fmWrite) 
 tlkout.write $tlk
-
+if not isNil(spells):
+  let outspell = newFileStream(dict.getSectionValue("General","OutputTwo")&"spells.2da", fmWrite)
+  outspell.writeTwoDA(spells)
+  outspell.close
+if not isNil(ip_spell):
+  let outspell = newFileStream(dict.getSectionValue("General","OutputTwo")&"iprp_spells.2da", fmWrite)
+  outspell.writeTwoDA(ip_spell)
+  outspell.close
+if not isNil(ip_feat):
+  let outspell = newFileStream(dict.getSectionValue("General","OutputTwo")&"iprp_feats.2da", fmWrite)
+  outspell.writeTwoDA(ip_feat)
+  outspell.close
 
 
