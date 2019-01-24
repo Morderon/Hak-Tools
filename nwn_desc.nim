@@ -10,14 +10,17 @@ let spellsf = newFileStream(dict.getSectionValue("General","InputTwo")&"spells.2
 var spells: TwoDA
 if not isNil(spellsf):  
   spells = spellsf.readTwoDA()
+  spellsf.close
 let ip_spellf = newFileStream(dict.getSectionValue("General","InputTwo")&"iprp_spells.2da")
 var ip_spell: TwoDA
 if not isNil(ip_spellf):  
   ip_spell = ip_spellf.readTwoDA()
+  ip_spellf.close
 let ip_featf = newFileStream(dict.getSectionValue("General","InputTwo")&"iprp_feats.2da")
 var ip_feat: TwoDA
 if not isNil(ip_featf):  
   ip_feat = ip_featf.readTwoDA()
+  ip_featf.close
 
 type
     ColPair = tuple[name: string, value: int]
