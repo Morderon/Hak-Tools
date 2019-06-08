@@ -1,4 +1,4 @@
-import neverwinter/twoda, streams, options, json, parsecfg, re, os, strutils
+import neverwinter/twoda, streams, options, json, parsecfg, re, os, strutils, typetraits
 
 let start = 16777216
 var tlkstart = 0
@@ -57,7 +57,7 @@ colNames[1] = [("SpellDesc",0), ("Name",0), ("AltMessage",0), ("",0), ("",0)]
 for file in walkDir(dict.getSectionValue("General","InputDesc")):
   var (dir, name, ext) = splitFile(file.path)
 
-  if ext == ".json" and (name == "classes" or name == "spells" or name == "racialtypes" or name == "feat"):
+  if ext == ".json" and (name == "classes" or name == "spells" or name == "racialtypes" or name == "feat" or name == "genericdoors"):
     case name:
       of "classes":
         colNames[0] = [("Description",0),("Name",0),("Plural",0),("Lower",0),("",0)]  
@@ -67,6 +67,8 @@ for file in walkDir(dict.getSectionValue("General","InputDesc")):
         colNames[0] = [("DESCRIPTION",0), ("FEAT",0), ("", 0), ("",0), ("",0)]
       of "racialtypes":
         colNames[0] = [("Description",0), ("Name",0), ("ConverName",0), ("ConverNameLower",0), ("NamePlural",0)]
+      of "genericdoors":
+        colNames[0] = [("",0), ("Name", 0), ("",0), ("",0), ("",0)]
     
     let js = parseFile(file.path)
     tlkstart = parseInt(dict.getSectionValue("General","start"&name))
