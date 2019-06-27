@@ -57,7 +57,7 @@ colNames[1] = [("SpellDesc",0), ("Name",0), ("AltMessage",0), ("",0), ("",0)]
 for file in walkDir(dict.getSectionValue("General","InputDesc")):
   var (dir, name, ext) = splitFile(file.path)
 
-  if ext == ".json" and (name == "classes" or name == "spells" or name == "racialtypes" or name == "feat" or name == "genericdoors"):
+  if ext == ".json" and (name == "classes" or name == "spells" or name == "racialtypes" or name == "feat" or name == "genericdoors" or name == "placeables"):
     case name:
       of "classes":
         colNames[0] = [("Description",0),("Name",0),("Plural",0),("Lower",0),("",0)]  
@@ -69,7 +69,9 @@ for file in walkDir(dict.getSectionValue("General","InputDesc")):
         colNames[0] = [("Description",0), ("Name",0), ("ConverName",0), ("ConverNameLower",0), ("NamePlural",0)]
       of "genericdoors":
         colNames[0] = [("",0), ("Name", 0), ("",0), ("",0), ("",0)]
-    
+      of "placeables":   
+        colNames[0] = [("",0), ("StrRef", 0), ("",0), ("",0), ("",0)]
+        
     let js = parseFile(file.path)
     tlkstart = parseInt(dict.getSectionValue("General","start"&name))
     var app: FileStream
