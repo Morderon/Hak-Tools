@@ -68,9 +68,9 @@ for file in walkDir(dict.getSectionValue("General","InputDesc")):
       of "racialtypes":
         colNames[0] = [("Description",0), ("Name",0), ("ConverName",0), ("ConverNameLower",0), ("NamePlural",0)]
       of "genericdoors":
-        colNames[0] = [("",0), ("Name", 0), ("",0), ("",0), ("",0)]
+        colNames[0] = [("DUMMY",0), ("Name", 0), ("",0), ("",0), ("",0)]
       of "placeables":   
-        colNames[0] = [("",0), ("StrRef", 0), ("",0), ("",0), ("",0)]
+        colNames[0] = [("DUMMY",0), ("StrRef", 0), ("",0), ("",0), ("",0)]
         
     let js = parseFile(file.path)
     tlkstart = parseInt(dict.getSectionValue("General","start"&name))
