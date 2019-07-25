@@ -49,11 +49,36 @@ proc addTlkNum(rowID: int, colNames: array[5, ColPair]) =
   
     ptrTD[][rowID] = row
 
-
-
 var colNames: array[2, array[5, ColPair]]
+var ovrstart_s = dict.getSectionValue("General","start")
 
-colNames[1] = [("SpellDesc",0), ("Name",0), ("AltMessage",0), ("",0), ("",0)] 
+var ovrstart = -1
+if ovrstart_s.len>0:
+  ovrstart=parseInt(ovrstart_s)
+
+let da_numf = newFileStream(dict.getSectionValue("General","InputTwo")&"iprp_number.2da")
+if not isNil(da_numf):
+  var da_num = da_numf.readTwoDA()
+  da_numf.close
+  if(ovrstart > 0):
+    tlkstart= ovrstart
+  else:
+    tlkstart = parseInt(dict.getSectionValue("General","start"&"iprp_number"))
+  var getRow: Row
+  for i in 51..100:
+    add(tlk["entries"], %* {"id": tlkstart, "text": intToStr(i)})
+    getRow = da_num[i].get()
+    getRow[da_num.columns.find("Name")] = some($(start+tlkstart))
+    tlkstart=tlkstart+1
+    da_num[i]=getRow
+
+  
+  let appout = newFileStream(dict.getSectionValue("General","OutputTwo")&"iprp_number.2da", fmWrite)
+  appout.writeTwoDA(da_num)
+  appout.close
+  ovrstart=tlkstart  
+
+colNames[1] = [("SpellDesc",0), ("Name",0), ("AltMessage",0), ("",0), ("",0)]
 for file in walkDir(dict.getSectionValue("General","InputDesc")):
   var (dir, name, ext) = splitFile(file.path)
 
@@ -73,7 +98,10 @@ for file in walkDir(dict.getSectionValue("General","InputDesc")):
         colNames[0] = [("DUMMY",0), ("StrRef", 0), ("",0), ("",0), ("",0)]
         
     let js = parseFile(file.path)
-    tlkstart = parseInt(dict.getSectionValue("General","start"&name))
+    if ovrstart > 0:
+        tlkstart=ovrstart
+    else:
+        tlkstart =parseInt(dict.getSectionValue("General","start"&name))
     var app: FileStream
     if name != "spells":
       app = newFileStream(dict.getSectionValue("General","InputTwo")&name&".2da")
@@ -123,7 +151,11 @@ for file in walkDir(dict.getSectionValue("General","InputDesc")):
       app.close
       appout.close
      
-let tlkout = newFileStream(dict.getSectionValue("General","OutTlk"), fmWrite) 
+
+    if ovrstart > 0:
+      ovrstart=tlkstart
+
+let tlkout = newFileStream(dict.getSectionValue("General","OutTlk"), fmWrite)
 tlkout.write $tlk
 if not isNil(spells):
   let outspell = newFileStream(dict.getSectionValue("General","OutputTwo")&"spells.2da", fmWrite)
