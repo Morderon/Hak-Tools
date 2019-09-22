@@ -81,7 +81,7 @@ if not isNil(da_numf):
 colNames[1] = [("SpellDesc",0), ("Name",0), ("AltMessage",0), ("",0), ("",0)]
 for file in walkDir(dict.getSectionValue("General","InputDesc")):
   var (dir, name, ext) = splitFile(file.path)
-  if ext == ".json" and (name == "classes" or name == "spells" or name == "racialtypes" or name == "feat" or name == "genericdoors" or name == "placeables"):
+  if ext == ".json" and (name == "classes" or name == "spells" or name == "racialtypes" or name == "feat" or name == "genericdoors" or name == "placeables" or name == "skills"):
     case name:
       of "classes":
         colNames[0] = [("Description",0),("Name",0),("Plural",0),("Lower",0),("",0)]
@@ -95,6 +95,8 @@ for file in walkDir(dict.getSectionValue("General","InputDesc")):
         colNames[0] = [("DUMMY",0), ("Name", 0), ("",0), ("",0), ("",0)]
       of "placeables":
         colNames[0] = [("DUMMY",0), ("StrRef", 0), ("",0), ("",0), ("",0)]
+      of "skills":
+        colNames[0] = [("Description",0), ("Name",0), ("",0), ("",0), ("",0)]
 
     let js = parseFile(file.path)
     if ovrstart > 0:
