@@ -47,16 +47,21 @@ if ends == 0 or ends > ftwoDA.high():
   ends = ftwoDA.high()
 
 writeout = "Rows with missing models:\n"
+var dupmdl = "\nDuplicate Models\n"
 for x in start..ends:
   try:
     row = ftwoDA[x].get()
     model = row[ftwoDA.columns.find(column)].get().toLowerAscii()
-    seqFiles.add(model)
+    if seqFiles.contains(model):
+      dupmdl &= model & " in " & x.intToStr() & "\n"
+    else:
+      seqFiles.add(model)
     if not fileExists(search & model & ".mdl"):
       writeout.add(x.intToStr() & ", " & model & "\n")
   except:
     echo "Nothing in row: ", x
 
+writeout &= dupmdl
 writeout &= "\nModels not within the 2da (note: May be supermodels or otherwise used):\n"
 for file in walkDir(search):
   fullFile = splitFile(file.path)
